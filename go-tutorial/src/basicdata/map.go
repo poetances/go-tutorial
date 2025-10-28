@@ -1,4 +1,4 @@
-package main
+package basicdata
 
 import "fmt"
 
@@ -11,6 +11,21 @@ m2 := map[string]int{}
 
 // 只声明，不初始化会报错
 var m3 map[string]int
+
+// 伪代码：map 的底层结构（实际实现更复杂）
+type hmap struct {
+    count     int      // 当前元素个数
+    flags     uint8    // 状态标志（如是否正在写入）
+    B         uint8    // 桶数量的对数（桶数为 2^B）
+    hash0     uint32   // 哈希种子
+    buckets   unsafe.Pointer // 指向桶数组的指针
+    oldbuckets unsafe.Pointer // 扩容时保存旧桶的指针
+    nevacuate uintptr  // 扩容时迁移的进度
+    extra     *mapextra // 可选字段，用于优化小对象存储
+}
+
+map 底层是通过 hash 表实现的，key 是无序的。但是 map 的行为是一种类引用类型，其表现跟 slice 类似。
+
 
 6. 总结
 ✅ map 是 Go 内置的数据结构，用于存储键值对，查找快。
@@ -50,6 +65,9 @@ func MapTutorial() {
 	for key, value := range m {
 		fmt.Println(key, value)
 	}
+	for key := range m {
+		fmt.Println("key:", key)
+	}
 
 	//（1）map 是引用类型
 	m3 := m2
@@ -57,14 +75,12 @@ func MapTutorial() {
 	
 	//（2）map 的 key 只能是可比较类型
 	// ✅ 可以作为 key：string、int、bool、float、struct（可比较）
+	key, ok := m["age"]
+	if ok {
+		fmt.Println("age:", key)
+	}
 
-	//5. map 与 struct 的区别
-	/*
-	特性		map	struct
-	键的类型	只能是可比较类型	字段名固定
-	值的类型	任意类型	字段类型固定
-	存储方式	哈希表，查找快	顺序存储，内存紧凑
-	是否有序	无序	有序
-	用途		适合动态存储键值对	适合固定字段的数据
-	*/
+	key1 := m3["age"] // 如果 key 不存在，返回的是该类型的零值
+	fmt.Println("age:", key1)
+
 }

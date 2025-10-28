@@ -1,4 +1,4 @@
-package main
+package basicdata
 
 import (
 	"fmt"
@@ -7,7 +7,39 @@ import (
 )
 
 /*
-Channel是一种类型，一种引用类型。声明管道的格式如下：
+在 Go 语言中， channel 是一种用于在不同 Goroutine 之间进行通信和同步的核心机制。它基于 CSP（Communicating Sequential Processes）模型，强调通过通信共享内存，而不是通过共享内存来通信。
+以下是 channel 的详细讲解，包括原理、使用方法以及常用技巧。
+channel 的基本原理
+(1) 底层数据结构
+channel 的底层是一个环形队列（ hchan 结构体），包含以下关键字段：
+buf ：指向缓冲区的指针（有缓冲 channel 时使用）。
+sendx 和 recvx ：发送和接收的索引位置。
+lock ：互斥锁，保证并发安全。
+sendq 和 recvq ：等待发送和接收的 Goroutine 队列（阻塞时使用）。
+
+type hchan struct {
+    qcount   uint           // 当前队列中的元素数量
+    dataqsiz uint           // 环形缓冲区的大小（有缓冲 channel）
+    buf      unsafe.Pointer // 指向缓冲区的指针
+    elemsize uint16         // 元素的大小
+    closed   uint32         // 是否已关闭
+    elemtype *_type         // 元素的类型信息
+    sendx    uint           // 发送索引（环形缓冲区）
+    recvx    uint           // 接收索引（环形缓冲区）
+    recvq    waitq          // 等待接收的 Goroutine 队列
+    sendq    waitq          // 等待发送的 Goroutine 队列
+    lock     mutex          // 互斥锁，保证并发安全
+}
+
+
+(2) 核心特性
+线程安全： channel 的操作是原子的，无需额外加锁。
+阻塞与非阻塞：
+无缓冲 channel：发送和接收必须同时准备好，否则会阻塞。
+有缓冲 channel：缓冲区未满时发送不阻塞，未空时接收不阻塞。
+方向性：可以声明为只读（ <-chan ）或只写（ chan<- ）。
+
+
 var 变量 chan 类型
 如：
 var ch1 chan int   整型管道
@@ -71,7 +103,6 @@ func ChannelTutorial1() {
 
 // / goroutine + chan
 var ws sync.WaitGroup
-
 func read(ch chan int) {
 	for v := range ch {
 		fmt.Println("读取数据：", v)
