@@ -1,4 +1,4 @@
-package main
+package function
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ Go 语言不像 Java、Python 那样提供完整的 try-catch-finally 异常处�
 */
 
 // 1.1 使用 errors.New() 生成错误
-func divide(a, b int) (int, error) {
+func divid2(a, b int) (int, error) {
 	if b == 0 {
 		return 0, errors.New("除数不能为0")
 	}
@@ -70,24 +70,9 @@ func testPanic() {
 延迟执行	defer	defer
 资源清理	defer	defer
 */
-
-func handlePanic() {
-	if r := recover(); r != nil {
-		fmt.Println("捕获 panic:", r)
-	}
-}
-
-func riskyFunction() {
-	defer handlePanic()
-	fmt.Println("执行可能出错的代码")
-	panic("意外错误")
-	fmt.Println("这行不会执行")
-}
-
-
 func PanicTutorial() {
 
-	result, error := divide(10, 0)
+	result, error := divid2(10, 0)
 	if error != nil {
 		fmt.Println("发生错误", error)
 	} else {

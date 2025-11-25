@@ -37,4 +37,8 @@ func ArrayTutorial() {
 	for i := 0; i < len(b); i++ {
 		fmt.Printf("b[%d] = %d 地址：%p\n", i, b[i], &b[i])
 	}
+
+	// 多维数组
+	var arr [2][2]int = [2][2]int{{1, 2}, {3, 4}}
+	fmt.Println(arr)
 }

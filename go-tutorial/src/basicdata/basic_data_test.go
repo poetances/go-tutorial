@@ -19,7 +19,7 @@ func TestBasicData(t *testing.T) {
 	// ArrayTutorial()
 	// SliceTutorial()
 	// MapTutorial()
-	ChannelTutorial()
+	// ChannelTutorial() 
 }
 
 /*
@@ -33,6 +33,11 @@ Go 语言中 nil 的设计目标是：
 Java/C#： null 引用调用方法会抛出 NullPointerException 。
 Python： None 没有类型信息，操作会直接报错。
 Go： nil 是“可操作的”，但部分操作（如写入 nil 映射）会 panic。
+
+
+值类型和引用类型的零值对比：
+值类型（如数组、结构体、基本数据类型）的零值是其字段的零值，永远不为 nil 。
+引用类型（如切片、映射、通道、指针、函数、接口）的零值是 nil 。
 */
 func TestEmpty(t *testing.T) {
 	var a [4]int
