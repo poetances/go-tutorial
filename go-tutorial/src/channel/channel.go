@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -154,11 +155,12 @@ func DemonstrateChannelClosing() {
 	ch <- 10
 	ch <- 20
 	ch <- 30
-	close(ch)
+	close(ch) // 一定要 close 掉，否则会死锁，接受完成 永远不会执行
 	// ch <- 40 // 这行会引发panic，因为channel已关闭
 	for value := range ch {
 		fmt.Println("接收到的值:", value)
 	}
+	fmt.Println("接收完成")
 
 	value, ok := <-ch
 	if !ok {
@@ -269,3 +271,149 @@ func DemonstrateDataTransfer() {
 	// 等待完成
 	time.Sleep(1 * time.Second)
 }
+
+// 6.2 信号通知
+// Channel 可以用于通知Goroutine 停止或继续执行
+func DemonstrateSignalNotification() {
+	stopCh := make(chan struct{})
+
+	go func() {
+		for {
+			select {
+			case <-stopCh:
+				fmt.Println("接收到停止信号")
+				return
+			default:
+				fmt.Println("工作中...")
+				time.Sleep(1 * time.Second)
+			}
+			fmt.Println("for 循环")
+		}
+	}()
+
+	// 运行一段时间后发送停止信息
+	time.Sleep(5 * time.Second)
+	close(stopCh)
+
+	// 等待工作 Goroutine 退出
+	time.Sleep(1 * time.Second)
+	fmt.Println("主程序退出")
+}
+
+// 6.3 多任务分发
+// 使用 Channel 实现任务分发模式，将任务分发给多个 Goroutine 执行
+func DemonstrateTaskDistribution() {
+	// 创建多任务
+	taskCh := make(chan int, 10)
+	resultCh := make(chan int, 10)
+
+	// 启动多个工作 Goroutinue
+	for i := 0; i < 3; i++ {
+        go func(workerID int) {
+			fmt.Printf("Worker %d 启动\n", workerID)
+            for task := range taskCh {
+                result := task * task  // 计算平方
+                fmt.Printf("Worker %d 处理任务 %d，结果 %d\n", workerID, task, result)
+                resultCh <- result
+            }
+			fmt.Printf("Worker %d 关闭\n", workerID)
+        }(i)
+    }
+
+	// 发送任务
+	time.Sleep(1 * time.Second)
+	go func() {
+		for i := 0; i <= 10; i++ {
+			taskCh <- i
+		}
+		close(taskCh)
+	}()
+	
+	// 收集结果
+	go func() {
+		for i := 0; i < 10; i++ {
+			result := <-resultCh
+			fmt.Printf("收集到结果：%d\n", result)
+		}
+	}()
+
+	// 等待完成
+	time.Sleep(2 * time.Second)
+	fmt.Println("已完成")
+}
+
+// 8. Channel最佳实践
+// 8.1 避免死锁
+func deadlockExample() {
+	ch := make(chan int)
+    
+    // 以下代码会死锁，因为没有接收者
+    // ch <- 1
+    
+    // 以下代码也会死锁，因为没有发送者
+    // <-ch
+	fmt.Println(<-ch)
+}
+// 正确示例：确保有对应的发送者和接收者
+func correctExample() {
+    ch := make(chan int)
+    
+    // 启动 goroutine 作为接收者
+    go func() {
+        value := <-ch
+        fmt.Printf("接收到值: %d\n", value)
+    }()
+    
+    // 发送数据
+    ch <- 42
+}
+func DemonstrateDeadlock() {
+	deadlockExample()
+	correctExample()
+}
+
+// 8.2 使用 Select 处理超时
+func DemonstrateTimeoutWithSelect() {
+	ch := make(chan int)
+	
+	// 启动发送
+	go func() {
+		time.Sleep(2 * time.Second)
+		ch <- 42
+	}()
+
+	select {
+	case value := <-ch:
+	fmt.Println("收到值:", value)
+	case <-time.After(1 * time.Second):
+		// 超过 1s 就会出现超时
+		fmt.Println("超时")
+	}
+}
+
+// 8.3 使用 Context控制 Goroutine
+func DemonstrateContextControl() {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	// 启动 Goroutine
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				fmt.Println("接收到取消信号")
+				return
+			default:
+				fmt.Println("工作中...")
+				time.Sleep(1 * time.Second)
+			}
+		}
+	}()
+
+	// 运行一段时间
+	time.Sleep(5 * time.Second)
+	cancel()
+
+	// 等待 goroutine 完成
+	time.Sleep(1 * time.Second)
+}
+

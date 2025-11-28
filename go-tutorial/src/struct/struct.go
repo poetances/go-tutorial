@@ -231,6 +231,8 @@ func DemonstratePolymorphism() {
 	for _, animal := range animals {
 		fmt.Println(animal.Move())
 	}
+	c := Car{}
+	c.Move()
 }
 // 6.结构体标签
 // 6.1 基本标签使用

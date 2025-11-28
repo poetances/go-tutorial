@@ -11,5 +11,9 @@ func TestChannel(t *testing.T) {
 	// DemonstrateMultiValueReceive()
 	// DemonstrateBasicSelect()
 	// DemonstrateSelectWithDefault()
-	DemonstrateDataTransfer()
+	// DemonstrateDataTransfer()
+	DemonstrateSignalNotification()
+	// DemonstrateTaskDistribution()
+	// DemonstrateTimeoutWithSelect()
+	// DemonstrateContextControl()
 }
