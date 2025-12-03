@@ -6,13 +6,15 @@ import "fmt"
 注意go语言中slice的声明方式
 var identifier []type 
 
+Go的 slice是动态数组的引用
+
 一个 slice 实际上是一个 结构体，包含：
   - 指针（Pointer）：指向底层数组的某个索引位置
   - 长度（Length）：slice 当前包含的元素个数
   - 容量（Capacity）：从 slice 开始位置到底层数组末尾的元素个数
 
 type slice struct {
-    array unsafe.Pointer // 指向底层数组的指针
+    ptr	  unsafe.Pointer // 指向底层数组的指针
     len   int           // 当前切片的长度（元素个数）
     cap   int           // 切片的容量（从底层数组的第一个元素到底层数组末尾的元素个数）
 }

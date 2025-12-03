@@ -3,6 +3,7 @@ package main
 /*
 项目规范：
 1.项目命名规范。
+
 	小写和连接线组成
 	例如：go-tutorial、go-web-server、redis-client 等。
 
@@ -67,39 +68,45 @@ user_service_bench_test.go
 package service
 
 import (
-    "context"
-    "fmt"
-    
-    "github.com/my-project/internal/domain"
-    "github.com/my-project/internal/repository"
+
+	"context"
+	"fmt"
+
+	"github.com/my-project/internal/domain"
+	"github.com/my-project/internal/repository"
+
 )
 
 // 类型定义
-type UserService struct {
-    repo repository.UserRepository
-}
+
+	type UserService struct {
+	    repo repository.UserRepository
+	}
 
 // 构造函数
-func NewUserService(repo repository.UserRepository) *UserService {
-    return &UserService{repo: repo}
-}
+
+	func NewUserService(repo repository.UserRepository) *UserService {
+	    return &UserService{repo: repo}
+	}
 
 // 导出方法（首字母大写）
-func (s *UserService) CreateUser(ctx context.Context, user *domain.User) error {
-    // 业务逻辑
-    if err := s.validateUser(user); err != nil {
-        return err
-    }
-    return s.repo.Create(ctx, user)
-}
+
+	func (s *UserService) CreateUser(ctx context.Context, user *domain.User) error {
+	    // 业务逻辑
+	    if err := s.validateUser(user); err != nil {
+	        return err
+	    }
+	    return s.repo.Create(ctx, user)
+	}
 
 // 私有方法（首字母小写）
-func (s *UserService) validateUser(user *domain.User) error {
-    if user.Name == "" {
-        return fmt.Errorf("user name is required")
-    }
-    return nil
-}
+
+	func (s *UserService) validateUser(user *domain.User) error {
+	    if user.Name == "" {
+	        return fmt.Errorf("user name is required")
+	    }
+	    return nil
+	}
 
 6. 测试
 // 单元测试 (Unit Tests) 一般用于功能测试，验证代码是否正确

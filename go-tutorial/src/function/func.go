@@ -295,6 +295,8 @@ func deferOrder() {
 		defer fmt.Printf("defer %d\n", i)
 	}
 	fmt.Println("循环结束")
+
+	// 输出顺序: 循环结束, defer 2, defer 1, defer 0
 }
 
 // deferWithReturn defer 与返回值

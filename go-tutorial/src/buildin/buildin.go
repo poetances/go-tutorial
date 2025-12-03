@@ -9,8 +9,8 @@ func close(c chan<- Type)
 func copy(dst, src []Type) int
 func delete(m map[Type]Type1, key Type)
 func len(v Type) int
-func make(Type, size IntegerType) Type
-func new(Type) *Type
+func make(Type, size IntegerType) Type // 创建slice、map、channel
+func new(Type) *Type // 创建对象, 返回指针，返回值是零值指针
 func complex(real, imag FloatType) ComplexType
 func imag(c ComplexType) FloatType
 func real(c ComplexType) FloatType
