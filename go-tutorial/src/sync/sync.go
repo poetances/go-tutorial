@@ -121,6 +121,7 @@ func DemonstrateSafeCounter() {
 // 3. RWMutex(读写互斥锁)
 // 3.1 读写锁的基本使用
 // RWMutex 是读写互斥锁，它允许多个读操作同时进行，但写操作需要互斥。
+// 一般情况下 RWMutex 适用于读多写少的场景
 func DemonstrateRWMutex() {
 	var rwMutext sync.RWMutex
 	var shareData map[string]int = make(map[string]int)

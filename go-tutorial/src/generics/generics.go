@@ -1,6 +1,9 @@
 package generics
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 /*
 一、什么是泛型？
@@ -27,6 +30,7 @@ func Add[T int | float64](a, b T) T {
 type Stack[T any] struct {
 	elements []T
 }
+
 func (s *Stack[T]) Push(element T) {
 	s.elements = append(s.elements, element)
 }
@@ -44,23 +48,110 @@ func (s *Stack[T]) IsEmpty() bool {
 	return len(s.elements) == 0
 }
 
-// 3.泛型结构
+// 3.泛型接口
 type Comparable[T any] interface {
 	Compare(other T) int
 }
-// 类型约束
+
+type Container[T any] interface {
+	Add(item T)
+	Remove(item T) bool
+	Contains(item T) bool
+}
+
+type PairInterface[K, V any] interface {
+	Key() K
+	Value() V
+	SetKey(key K)
+	SetValue(value V)
+}
+
+// 4.类型约束
 type Number interface {
 	int | int32 | int64 | float32 | float64
 }
+
 func Max[T Number](a, b T) T {
 	if a > b {
 		return a
 	}
 	return b
 }
+
 type Addable interface {
-    ~int | ~float32 | ~float64 // ~ 表示底层类型, 包括自定义类型
+	~int | ~float32 | ~float64 // ~ 表示底层类型, 包括自定义类型
 }
+
 // 底层类型相同：两个类型即使名称不同，只要底层类型一致即视为相同。比如：
-type MyInt int    // 底层类型是 int
+type MyInt int     // 底层类型是 int
 type YourInt = int // 底层类型是 int
+
+// 5.多参数类型约束
+func Swap[T1, T2 any](a T1, b T2) (T2, T1) {
+	return b, a
+}
+
+type Pair[K, V any] struct {
+	key   K
+	value V
+}
+
+func (p Pair[K, V]) Key() K {
+	return p.key
+}
+func (p Pair[K, V]) Value() V {
+	return p.value
+}
+
+type AdderFunc[T any] func(a, b T) T
+
+func AddTest[T int](a AdderFunc[T]) T {
+	return a(1, 2)
+}
+
+//////////////////////////////////////////////////////////////////
+// Handler实现了一个基于Go泛型的异步队列处理器，它是一个通用的生产者-消费者模式实现，可以处理任意类型的数据项。
+/////////////////////////////////////////////////////////////////
+type Handle[T any] func(item T)
+type Handler[T any] struct {
+	cancel context.CancelFunc
+	itemChan   chan T
+}
+
+func NewHandler[T any]() *Handler[T] {
+	return &Handler[T]{}
+}
+func (h *Handler[T]) Start(size int, handle Handle[T]) {
+	h.Stop()
+	ctx, cancel := context.WithCancel(context.Background())
+	h.itemChan = make(chan T, size)
+	h.cancel = cancel
+	go func() {
+		for {
+			select {
+			case item := <-h.itemChan:
+				handle(item)
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+}
+func (h *Handler[T]) Stop() {
+	if h.cancel != nil {
+		h.cancel()
+		h.cancel = nil
+		h.itemChan = nil
+	}
+}
+func (h *Handler[T]) Push(item T) bool{
+	if h.itemChan == nil {
+		return false
+	}
+	select {
+	case h.itemChan <- item:
+		return true
+	default:
+		return false
+	}
+}
