@@ -1,6 +1,7 @@
 package rand
 
 import (
+	crand "crypto/rand"
 	"fmt"
 	"math/rand"
 )
@@ -30,5 +31,11 @@ func DemonstrateMathRand() {
 func DemonostrateCryptoRand() {
 	// crypto/rand 包用于生成加密安全的随机数。它使用操作系统提供的随机数生成器，适用于需要高安全性的场景，如密钥生成、令牌生成等。
 	// 生成加密安全的随机字节
-	
+	b := make([]byte, 10)
+	_, err := crand.Read(b)
+	if err != nil {
+		fmt.Println("Error reading random bytes:", err)
+		return
+	}
+	fmt.Println("Random bytes:", b)
 }

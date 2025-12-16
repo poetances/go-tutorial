@@ -1,7 +1,10 @@
 package rand
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestRand(t *testing.T) {
-	DemonstrateMathRand()
+	// DemonstrateMathRand()
+	DemonostrateCryptoRand()
 }
